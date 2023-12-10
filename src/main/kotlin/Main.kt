@@ -18,58 +18,50 @@ import enums.NavigationTab
 import ui.ContentPanel
 import ui.NavigationPanel
 import ui.TitleBar
-import java.util.prefs.Preferences
+import utils.PreferencesManager
 
 @Composable
 @Preview
 fun App() {
+//    PreferencesManager.setMusicDir("")
     var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
-    MaterialTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)
-        ) {
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.Start
 
-            Column (
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                Row {
-                    NavigationPanel(onTabSelected = {
-                        selectedTab = it
-                    })
-                ContentPanel()
-                }
-            }
+    ) {
+        Row {
+            NavigationPanel(onTabSelected = {
+                selectedTab = it
+            })
+            ContentPanel(selectedTab)
         }
-
     }
 }
 
 
 
 fun main() = application {
-    val preferences = Preferences.userRoot().node("settings")
-    preferences.put("Some key", "Some value")
-    val s = preferences.get("Some key", "")
-
     Window(
         onCloseRequest = ::exitApplication,
         transparent = true,
         undecorated = true,
     ) {
 
-        Column {
-            WindowDraggableArea {
-                TitleBar {
-                     this@application.exitApplication()
+        MaterialTheme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                shape = RoundedCornerShape(8.dp)
+            ){
+                Column {
+                    WindowDraggableArea {
+                        TitleBar {
+                            this@application.exitApplication()
+                        }
+                    }
+                    App()
                 }
             }
-            App()
         }
-
-
-
     }
 }

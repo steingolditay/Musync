@@ -1,6 +1,5 @@
 package ui
 
-import Utils
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -12,13 +11,13 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import enums.NavigationTab
+import Constants.AppColors
 
 @Composable
 @Preview
@@ -30,7 +29,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
         .fillMaxWidth(0.2f)
-        .background(Utils.AppColors.colorBackground)
+        .background(AppColors.background)
         .border(border = ButtonDefaults.outlinedBorder, shape = RoundedCornerShape(8.dp))
         .padding(vertical = 16.dp, horizontal = 8.dp)
 
@@ -46,11 +45,12 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn(modifier = Modifier.fillMaxHeight()) {
-            items(navigationTabs.size){
+            items(navigationTabs.size){ it ->
                 val tab = navigationTabs[it]
                 val isTabSelected = tab == selectedTab
                 SidePanelTab(tab, isTabSelected) {
                     selectedTab = tab
+                    onTabSelected(it)
                 }
             }
         }
@@ -61,7 +61,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
 
 @Composable
 fun SidePanelTab(tab: NavigationTab, isSelected: Boolean, onTabSelected: (tab: NavigationTab) -> Unit){
-    val buttonColor = if (isSelected) Utils.AppColors.colorButtonPressed else Utils.AppColors.colorBackground
+    val buttonColor = if (isSelected) AppColors.accent else AppColors.background
     val colorAnimation = animateColorAsState(buttonColor, animationSpec = tween(500))
     Button(
         onClick = {
@@ -79,7 +79,7 @@ fun SidePanelTab(tab: NavigationTab, isSelected: Boolean, onTabSelected: (tab: N
         Text(
             text = tab.toString(),
             style = TextStyle(
-                color = Color.White,
+                color = AppColors.white,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
             ),

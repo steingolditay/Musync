@@ -1,5 +1,6 @@
 package ui
 
+import Constants
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,13 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.ApplicationScope
+import Constants.AppColors
+import Constants.StringResources
 
 @Composable
 @Preview
 fun TitleBar(onApplicationExit: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(topEnd = 8.dp, topStart = 8.dp),
         modifier = Modifier
             .border(border = ButtonDefaults.outlinedBorder, shape = RoundedCornerShape(8.dp))
 
@@ -33,13 +34,15 @@ fun TitleBar(onApplicationExit: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(Utils.AppColors.colorBackground)
+                .background(AppColors.background)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(0.5f)
 
             ) {
-                Text("FileSync", modifier = Modifier.padding(8.dp), color = Color.White)
+                Text(StringResources.appName,
+                    modifier = Modifier.padding(8.dp),
+                    color = Color.White)
 
             }
             Row (
@@ -59,9 +62,7 @@ fun TitleBar(onApplicationExit: () -> Unit) {
                     contentDescription = "Settings",
                     tint = Color.White,
                     modifier = Modifier.padding(horizontal = 8.dp)
-
                 )
-
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Exit",
