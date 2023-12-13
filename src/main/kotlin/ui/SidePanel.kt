@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import enums.NavigationTab
 import Constants.AppColors
-
+import Constants.ImageResources
 @Composable
 @Preview
 fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
@@ -36,7 +36,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
     ) {
         // logo
         Image(
-            painterResource("logo-white.png"),
+            painterResource(ImageResources.logo),
             contentDescription = "logo",
             modifier = Modifier
                 .fillMaxHeight(0.20f)
@@ -44,7 +44,10 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxHeight()
+        ) {
             items(navigationTabs.size){ it ->
                 val tab = navigationTabs[it]
                 val isTabSelected = tab == selectedTab
