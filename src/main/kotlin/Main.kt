@@ -80,9 +80,12 @@ fun main() = application {
                     App()
                 }
                 if (showServerStatusDialog){
-                    ServerStatusDialog(ClientApi.serverStatus.value, windowState) {
-                        showServerStatusDialog = false
-                    }
+                    ServerStatusDialog(
+                        ClientApi.serverStatus.value,
+                        windowState,
+                        onDismiss = {
+                            showServerStatusDialog = false
+                        })
                 }
             }
         }
