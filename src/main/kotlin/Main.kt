@@ -2,28 +2,27 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
 import enums.NavigationTab
+import network.ClientApi
 import ui.ContentPanel
 import ui.NavigationPanel
 import ui.TitleBar
-import utils.PreferencesManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.window.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import network.ServerStatus
+import network.isError
+import ui.ServerStatusDialog
 
 @Composable
 @Preview
 fun App() {
-//    PreferencesManager.setMusicDir("")
     var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -39,14 +38,28 @@ fun App() {
     }
 }
 
-
-
 fun main() = application {
+    val windowState = rememberWindowState(position = WindowPosition(Alignment.Center))
+    var showServerStatusDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    ClientApi.scope = scope
+
+    ClientApi.scope?.launch {
+        ClientApi.serverStatus.collectLatest { serverStatus ->
+            if (!serverStatus.isError() && showServerStatusDialog){
+                showServerStatusDialog = false
+            }
+        }
+    }
+
     Window(
         onCloseRequest = ::exitApplication,
         transparent = true,
         undecorated = true,
-    ) {
+        title = Constants.StringResources.appName,
+        icon = painterResource(Constants.ImageResources.logo),
+        state = windowState
+        ) {
 
         MaterialTheme {
             Surface(
@@ -55,13 +68,25 @@ fun main() = application {
             ){
                 Column {
                     WindowDraggableArea {
-                        TitleBar {
-                            this@application.exitApplication()
-                        }
+                        TitleBar(
+                            onApplicationExit = {
+                                this@application.exitApplication()
+                            },
+                            onShowServerStatusDialog = {
+                                showServerStatusDialog = true
+                            }
+                        )
                     }
                     App()
+                }
+                if (showServerStatusDialog){
+                    ServerStatusDialog(ClientApi.serverStatus.value, windowState) {
+                        showServerStatusDialog = false
+                    }
                 }
             }
         }
     }
 }
+
+
