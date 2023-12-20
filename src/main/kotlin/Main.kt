@@ -14,16 +14,25 @@ import ui.NavigationPanel
 import ui.TitleBar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.*
+import database.DatabaseService
+import database.DatabaseRecord
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import network.ServerStatus
 import network.isError
 import ui.ServerStatusDialog
+import utils.FileUtils.calculateMD5
+import utils.FileUtils.getPathOnly
+import utils.FileUtils.isAudioFile
+import utils.PreferencesManager
+import java.io.File
+
 
 @Composable
 @Preview
 fun App() {
+
     var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
+
     Column (
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start
@@ -37,6 +46,7 @@ fun App() {
         }
     }
 }
+
 
 fun main() = application {
     val windowState = rememberWindowState(position = WindowPosition(Alignment.Center))
@@ -61,7 +71,7 @@ fun main() = application {
         state = windowState
         ) {
 
-        MaterialTheme {
+        MaterialTheme(darkColors()) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(8.dp)

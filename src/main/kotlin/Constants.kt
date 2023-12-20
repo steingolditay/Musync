@@ -6,7 +6,7 @@ object Constants {
 
 
     object AppColors {
-        val background = Color(0xFF232323)
+        val background = Color(0xFF191919)
         val dialogBackground = Color(0xFF252729)
         val accent = Color(0xFF7EA3CC)
         val green = Color(0xFF41D6A2)

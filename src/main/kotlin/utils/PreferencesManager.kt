@@ -11,10 +11,9 @@ object PreferencesManager {
 
     private val preferences = Preferences.userRoot().node(SETTINGS)
 
-    fun hasMusicDir(): Boolean {
-        return preferences.get(MUSIC_DIR, "").isNotBlank()
+    fun clearAll(){
+        preferences.clear()
     }
-
     fun setMusicDir(path: String){
         preferences.put(MUSIC_DIR, path)
     }
@@ -23,4 +22,6 @@ object PreferencesManager {
         val dir = preferences.get(MUSIC_DIR, "")
         return dir.ifBlank { null }
     }
+
+
 }

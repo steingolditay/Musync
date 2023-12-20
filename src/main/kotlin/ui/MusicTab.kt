@@ -1,8 +1,6 @@
 package ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,9 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import utils.PreferencesManager
 import Constants.AppColors
-import androidx.compose.ui.unit.sp
-import utils.FileUtils
-import Constants.StringResources
 import androidx.compose.material.Icon
 import androidx.compose.ui.res.painterResource
 import java.io.File
@@ -25,11 +20,16 @@ import kotlin.io.path.Path
 
 @Composable
 fun MusicTab() {
-    var hasMusicDirectory by remember { mutableStateOf(PreferencesManager.hasMusicDir()) }
     var currentDirectory by remember { mutableStateOf("") }
+    PreferencesManager.getMusicDir()?.let {
+        if (currentDirectory.isBlank() && it.isNotBlank()) {
+            currentDirectory = it
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (hasMusicDirectory) Arrangement.Top else Arrangement.Center,
+        verticalArrangement = if (currentDirectory.isNotBlank()) Arrangement.Top else Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -37,12 +37,9 @@ fun MusicTab() {
             .padding(bottom = 16.dp)
     ) {
 
-        if (hasMusicDirectory){
-            if (currentDirectory.isBlank()){
-                currentDirectory = PreferencesManager.getMusicDir()!!
-            }
 
-            NavigationBar(PreferencesManager.getMusicDir()!!, currentDirectory) {
+        if (currentDirectory.isNotBlank()){
+            NavigationBar(currentDirectory) {
                 if (currentDirectory != PreferencesManager.getMusicDir()){
                    val backPath = currentDirectory.removeSuffix(Path(currentDirectory).last().toString()).removeSuffix("\\")
                     currentDirectory = backPath
@@ -66,7 +63,7 @@ fun MusicTab() {
 
         } else {
             EmptyState {
-                hasMusicDirectory = true
+                currentDirectory = it
             }
         }
     }
@@ -74,7 +71,8 @@ fun MusicTab() {
 
 
 @Composable
-private fun NavigationBar(originPath: String, currentPath: String, onBackNavigation: () -> Unit){
+private fun NavigationBar(currentPath: String, onBackNavigation: () -> Unit){
+    val originPath = PreferencesManager.getMusicDir()
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
@@ -92,7 +90,7 @@ private fun NavigationBar(originPath: String, currentPath: String, onBackNavigat
                 .size(12.dp)
                 .let {
                     if (currentPath != originPath){
-                       return@let it.clickable {
+                        return@let it.clickable {
                             onBackNavigation.invoke()
                         }
                     }
@@ -147,27 +145,4 @@ private fun FileItem(file: File, onDirectorySelected: (path: String) -> Unit){
     }
 }
 
-@Composable
-private fun EmptyState(onDirectorySelected: () -> Unit){
-    Text(StringResources.noDirectorySelected,
-        modifier = Modifier
-            .padding(8.dp),
-        color = AppColors.white,
-        fontSize = 12.sp
-    )
-    Button(
-        modifier = Modifier
-            .wrapContentWidth()
-            .wrapContentHeight(),
-        colors = ButtonDefaults.buttonColors(AppColors.accent),
-        onClick = {
-            val musicFolderPath = FileUtils.pickFolder()
-            musicFolderPath?.let {
-                PreferencesManager.setMusicDir(it)
-                onDirectorySelected.invoke()
-            }
-        }
-    ){
-        Text(StringResources.selectDirectory, color = AppColors.white)
-    }
-}
+

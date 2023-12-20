@@ -30,7 +30,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         modifier = Modifier
         .fillMaxWidth(0.2f)
         .background(AppColors.background)
-        .border(border = ButtonDefaults.outlinedBorder, shape = RoundedCornerShape(8.dp))
+        .border(border = ButtonDefaults.outlinedBorder)
         .padding(vertical = 16.dp, horizontal = 8.dp)
 
     ) {
