@@ -1,13 +1,12 @@
-package utils
+package database
 
-import database.FileRecord
-import database.DatabaseService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import utils.FileUtils.calculateMD5
 import utils.FileUtils.getPathOnly
 import utils.FileUtils.isAudioFile
+import utils.PreferencesManager
 import java.io.File
 
 object DatabaseSyncHelper {

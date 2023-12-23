@@ -1,4 +1,4 @@
-package ui
+package ui.music
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight

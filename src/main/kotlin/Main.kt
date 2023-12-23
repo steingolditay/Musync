@@ -9,15 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import enums.NavigationTab
 import network.ClientApi
-import ui.ContentPanel
-import ui.NavigationPanel
-import ui.TitleBar
+import ui.main.ContentPanel
+import ui.main.NavigationPanel
+import ui.main.TitleBar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import network.isError
-import ui.ServerStatusDialog
+import ui.dialogs.ServerStatusDialog
 
 
 
@@ -45,15 +45,13 @@ fun main() = application {
     val windowState = rememberWindowState(position = WindowPosition(Alignment.Center))
     var showServerStatusDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    ClientApi.scope = scope
 
-    ClientApi.scope?.launch {
+    scope.launch {
         ClientApi.serverStatus.collectLatest { serverStatus ->
             if (!serverStatus.isError() && showServerStatusDialog){
                 showServerStatusDialog = false
             }
         }
-
     }
 
     Window(

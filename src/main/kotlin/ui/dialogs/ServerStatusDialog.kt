@@ -1,12 +1,14 @@
-package ui
+package ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -15,76 +17,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import network.ClientApi
+import network.ServerStatus
 import Constants.AppColors
 import androidx.compose.foundation.border
-import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
-import database.DatabaseService
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import utils.DatabaseSyncHelper
 
 @Composable
-fun SyncDialog(onDismiss: () -> Unit) {
+fun ServerStatusDialog(serverStatus: ServerStatus, windowState: WindowState, onDismiss: () -> Unit) {
 
     val scope = rememberCoroutineScope()
     val surfaceWidth = 350.dp
-    val surfaceHeight = 140.dp
+    val surfaceHeight = 200.dp
     val shadowSize = 16.dp
 
-    var numberOfFiles by remember { mutableStateOf(1) }
-    var fileProcessed by remember { mutableStateOf(0) }
-
-    var titleText by remember { mutableStateOf("") }
-    var bodyText by remember { mutableStateOf("") }
-    var syncWithServer by remember { mutableStateOf(false) }
-
-
-
-    DisposableEffect(scope){
-        var currentJob: Job? = null
-
-        val serverSyncJob = scope.launch(start = CoroutineStart.LAZY) {
-            val databaseRecords = DatabaseService.getAll()
-            val response = ClientApi.syncFiles(databaseRecords)
-            response
-        }
-        val databaseSyncJob = scope.launch(start = CoroutineStart.LAZY){
-            DatabaseSyncHelper.sync(
-                onSyncStarted = {
-                    numberOfFiles = it
-                    titleText = "Updating the database"
-                    println("Started Syncing $it Files")
-                },
-                onFileProcessed = {
-                    fileProcessed = it
-                    bodyText = "$fileProcessed / $numberOfFiles"
-                    println("Processed $it Files")
-                },
-                onFinalizing = {
-                    titleText = "Finalizing Database"
-                    bodyText = "this might take a moment...\nPlease do not turn off."
-                },
-                onCompletion = {
-                    titleText = "Connecting to server"
-                    bodyText = "Syncing files..."
-                    syncWithServer = true
-                    currentJob = serverSyncJob
-                    currentJob?.start()
-                }
-            )
-        }
-        currentJob = databaseSyncJob
-        currentJob?.start()
-
-        onDispose {
-            currentJob?.cancel()
-        }
-    }
-
+    val x = windowState.position.x + windowState.size.width - surfaceWidth - 80.dp
+    val y = windowState.position.y + 60.dp
 
     Dialog(onDismiss,
         transparent = true,
@@ -92,10 +44,11 @@ fun SyncDialog(onDismiss: () -> Unit) {
         resizable = false,
         state = DialogState(
             size = DpSize(surfaceWidth + shadowSize, surfaceHeight + shadowSize),
-            position = WindowPosition(Alignment.Center)
+            position = WindowPosition(x, y)
         ),
-    ){
 
+
+    ){
         Surface(
             modifier = Modifier
                 .size(surfaceWidth, surfaceHeight)
@@ -134,15 +87,17 @@ fun SyncDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.fillMaxSize()
                 )
                 {
-                    Text(titleText,
+                    Text("Connection Issue",
                         color = AppColors.white,
                         modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(top = 8.dp),
+                            .wrapContentWidth(),
                         textAlign = TextAlign.Center,
                         style = TextStyle(fontWeight = FontWeight.Bold),
                         fontSize = 18.sp
                     )
+                    val bodyText = if (serverStatus == ServerStatus.OFFLINE)
+                        Constants.StringResources.serverStatusOffline
+                    else "${Constants.StringResources.serverStatusErrorCode} ${serverStatus.code}"
                     Text(
                         bodyText,
                         color = AppColors.white,
@@ -151,6 +106,29 @@ fun SyncDialog(onDismiss: () -> Unit) {
                             .padding(top = 24.dp),
                         textAlign = TextAlign.Center
                     )
+                    Button(
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .wrapContentWidth()
+                            .padding(top = 32.dp),
+                        onClick = {
+                            scope.launch(Dispatchers.IO){
+                                ClientApi.isServerAlive()
+                            }
+
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = AppColors.accent,
+                        ),
+                    ) {
+                        Text(
+                            text = "Retry",
+                            style = TextStyle(
+                                color = AppColors.white,
+                            ),
+                        )
+                    }
+
                 }
             }
 

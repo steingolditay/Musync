@@ -1,4 +1,4 @@
-package ui
+package ui.main
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween

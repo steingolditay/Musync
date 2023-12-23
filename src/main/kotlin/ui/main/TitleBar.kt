@@ -1,4 +1,4 @@
-package ui
+package ui.main
 
 import Constants
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -33,14 +33,16 @@ import network.ServerStatus
 fun TitleBar(onApplicationExit: () -> Unit,
              onShowServerStatusDialog: () -> Unit,
              state: WindowState) {
+    val scope = rememberCoroutineScope()
     var serverStatus by remember { mutableStateOf(ServerStatus.UNKNOWN) }
 
-    ClientApi.scope?.launch {
+    scope.launch {
         ClientApi.serverStatus.collectLatest {
             serverStatus = it
         }
+        ClientApi.isServerAlive()
     }
-    ClientApi.isServerAlive()
+
 
     Surface {
         Row(
@@ -94,7 +96,7 @@ fun TitleBar(onApplicationExit: () -> Unit,
                     tint = AppColors.white,
                     modifier = Modifier.padding(start = 8.dp, end = 16.dp)
                         .clickable {
-                            ClientApi.scope?.launch {
+                            scope.launch {
                                 DatabaseService.getAll().forEach { println(it) }
                             }
                         }
