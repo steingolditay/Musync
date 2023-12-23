@@ -50,8 +50,8 @@ fun SyncDialog(onDismiss: () -> Unit) {
         val serverSyncJob = scope.launch(start = CoroutineStart.LAZY) {
             val databaseRecords = DatabaseService.getAll()
             val response = ClientApi.syncFiles(databaseRecords)
-            response
         }
+
         val databaseSyncJob = scope.launch(start = CoroutineStart.LAZY){
             DatabaseSyncHelper.sync(
                 onSyncStarted = {
@@ -65,7 +65,7 @@ fun SyncDialog(onDismiss: () -> Unit) {
                     println("Processed $it Files")
                 },
                 onFinalizing = {
-                    titleText = "Finalizing Database"
+                    titleText = "Applying changes to database"
                     bodyText = "this might take a moment...\nPlease do not turn off."
                 },
                 onCompletion = {

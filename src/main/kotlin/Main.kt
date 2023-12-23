@@ -19,8 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import network.isError
 import ui.dialogs.ServerStatusDialog
 
-
-
 @Composable
 @Preview
 fun App() {

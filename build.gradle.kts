@@ -16,7 +16,6 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
-//    implementation(compose.material3)
 
     val ktorVersion = "2.3.7"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
