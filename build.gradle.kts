@@ -49,7 +49,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "MusicSync"
+            packageName = "Musync"
             packageVersion = "1.0.0"
             outputBaseDir.set(project.buildDir.resolve("exports"))
             modules("java.instrument", "java.management", "java.prefs", "java.sql", "jdk.unsupported")
