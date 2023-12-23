@@ -1,6 +1,6 @@
 package network
 
-import androidx.compose.runtime.MutableState
+import database.FileRecord
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 object ClientApi {
 
@@ -52,6 +51,26 @@ object ClientApi {
                 _serverStatus.value = ServerStatus.OFFLINE
             }
         }
+    }
+
+    suspend fun syncFiles(records: List<FileRecord>): List<Int>? {
+        try {
+            val response = client.request("/sync"){
+                contentType(ContentType.Application.Json)
+                method = HttpMethod.Post
+                port = serverPort
+                setBody(records)
+                headers {
+                    append(HttpHeaders.Accept, "application/json")
+                }
+            }
+            if (response.isOk()){
+                return response.body()
+            }
+        } catch (e: Exception){
+            println("error: $e")
+        }
+        return listOf()
     }
 }
 

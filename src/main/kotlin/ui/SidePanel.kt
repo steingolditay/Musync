@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import enums.NavigationTab
 import Constants.AppColors
 import Constants.ImageResources
+import androidx.compose.ui.draw.clip
+
 @Composable
 @Preview
 fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
@@ -29,9 +31,10 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
         .fillMaxWidth(0.2f)
+        .padding(vertical = 8.dp, horizontal = 8.dp)
+        .clip(RoundedCornerShape(8.dp))
         .background(AppColors.background)
-        .border(border = ButtonDefaults.outlinedBorder)
-        .padding(vertical = 16.dp, horizontal = 8.dp)
+
 
     ) {
         // logo
@@ -39,7 +42,9 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
             painterResource(ImageResources.logo),
             contentDescription = "logo",
             modifier = Modifier
+                .fillMaxWidth()
                 .fillMaxHeight(0.20f)
+                .background(AppColors.background)
         )
 
         Spacer(modifier = Modifier.height(16.dp))

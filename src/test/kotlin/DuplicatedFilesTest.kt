@@ -1,71 +1,51 @@
-import database.DatabaseRecord
+import androidx.compose.runtime.rememberCoroutineScope
+import database.FileRecord
+import database.DatabaseService
+import kotlinx.coroutines.launch
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Test
 
 class DuplicatedFilesTest {
 
     @Test
     fun testDuplications(){
-        val hashInstances = mutableListOf(
-            DatabaseRecord(null, "File23", "origin/path", "hash", true),
-            DatabaseRecord(null, "File24", "origin/path", "hash", true),
-            DatabaseRecord(null, "File25", "origin/path", "hash", true),
+        val database = DatabaseService.mockDatabase
 
-            DatabaseRecord(null, "File20", "origin", "hash", true),
-            DatabaseRecord(null, "File21", "origin", "hash", true),
-            DatabaseRecord(null, "File22", "origin", "hash", true),
+        val scope = rememberCoroutineScope()
 
-            DatabaseRecord(null, "File33", "origin/1", "hash", true)
-
-
-        )
-
-        val existingRecords = mutableListOf(
-            DatabaseRecord(null, "File1", "origin", "hash", true),
-            DatabaseRecord(null, "File20", "origin", "hash", true),
-            DatabaseRecord(null, "File3", "origin", "hash", true),
-
-            DatabaseRecord(null, "File34", "origin/2", "hash", true),
-
-
-            DatabaseRecord(null, "File4", "origin/path", "hash", true),
-            DatabaseRecord(null, "File5", "origin/path", "hash", true),
-            DatabaseRecord(null, "File6", "origin/path", "hash", true)
-        )
-
-
-        val toRemove = mutableListOf<DatabaseRecord>()
-        existingRecords.forEach {
-            if (hashInstances.contains(it)){
-                hashInstances.remove(it)
-                toRemove.add(it) // do nothing
-            }
-
-            if (hashInstances.none { instance -> instance.path == it.path }){
-                toRemove.add(it) // remove from db
-            }
-        }
-        toRemove.forEach {
-            existingRecords.remove(it)
+        transaction(database) {
+            SchemaUtils.create(DatabaseService.MusicFileDao)
         }
 
 
-        existingRecords.forEach {
-            val sameInstance = hashInstances.firstOrNull { instance -> instance.path == it.path && instance.name == it.name }
-            if (sameInstance != null){
-                return@forEach
+        scope.launch {
+            DatabaseService.dbQuery {
+                DatabaseService.MusicFileDao.insert {
+                    it[id] = 1
+                    it[name] = "1"
+                    it[path] = "path"
+                    it[hash] = "hash1"
+                    it[sync] = true
+                }
+                DatabaseService.MusicFileDao.insert {
+                    it[id] = 2
+                    it[name] = "2"
+                    it[path] = "path"
+                    it[hash] = "hash2"
+                    it[sync] = true
+                }
             }
 
-            val instance = hashInstances.firstOrNull { instance ->
-                instance.path == it.path
-            } ?: return@forEach
-            it.name = instance.name // rename
-            hashInstances.remove(instance)
-        }
+            val hashInstances = mutableListOf(
+                FileRecord(null, "1", "path", "hash1", true),
+                FileRecord(null, "2", "path", "hash1", true)
+            )
 
-        existingRecords.addAll(hashInstances) // insert
+            val existingRecords = DatabaseService.dbQuery { DatabaseService.getAll() }
 
-        existingRecords.forEach {
-            println(it)
+
         }
     }
 }

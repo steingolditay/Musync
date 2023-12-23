@@ -6,8 +6,8 @@ object Constants {
 
 
     object AppColors {
-        val background = Color(0xFF191919)
-        val dialogBackground = Color(0xFF252729)
+        val background = Color(0xFF151515)
+        val dialogBackground = Color(0xFF222222)
         val accent = Color(0xFF7EA3CC)
         val green = Color(0xFF41D6A2)
         val red = Color(0xFFD64040)
@@ -19,19 +19,25 @@ object Constants {
     }
 
     object StringResources {
-        val appName = "FileSync"
-        val noDirectorySelected = "No directory selected"
-        val selectDirectory = "Select Directory"
-        val serverStatusOffline = "Server seems to be offline."
-        val serverStatusErrorCode = "Failed to communicate with the server.\n Error Code: "
+        const val appName = "FileSync"
+        const val noDirectorySelected = "No directory selected"
+        const val selectDirectory = "Select Directory"
+        const val serverStatusOffline = "Server seems to be offline."
+        const val serverStatusErrorCode = "Failed to communicate with the server.\n Error Code: "
 
     }
 
     object ImageResources {
-        val logo = "logo-white.png"
-        val folder = "folder.png"
-        val audio = "audio.png"
-        val back = "back.png"
+        const val logo = "logo.png"
+        const val folder = "folder.png"
+        const val audio = "audio.png"
+        const val back = "back.png"
+        const val minimize = "minimize.png"
+        const val maximize = "maximize.png"
+        const val floating = "floating.png"
+        const val sync = "sync.svg"
+        const val dontSync = "dont_sync.svg"
+
     }
 
 }

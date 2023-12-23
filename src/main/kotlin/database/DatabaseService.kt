@@ -5,7 +5,8 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import javax.xml.crypto.Data
+import utils.FileUtils.getPathOnly
+import java.io.File
 
 
 object DatabaseService {
@@ -33,7 +34,7 @@ object DatabaseService {
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.Default) { block() }
 
-    suspend fun insert(file: DatabaseRecord) {
+    suspend fun insert(file: FileRecord) {
         dbQuery {
             MusicFileDao.insert {
                 it[name] = file.name
@@ -45,7 +46,7 @@ object DatabaseService {
 
     }
 
-    suspend fun update(record: DatabaseRecord) {
+    suspend fun update(record: FileRecord) {
         val recordId = record.id ?: return
         dbQuery {
             MusicFileDao.update({ MusicFileDao.id.eq(recordId)}) {
@@ -56,7 +57,7 @@ object DatabaseService {
 
     }
 
-    suspend fun updateSync(record: DatabaseRecord){
+    suspend fun updateSync(record: FileRecord){
         val recordId = record.id ?: return
         dbQuery {
             MusicFileDao.update( {MusicFileDao.id.eq(recordId)} ) {
@@ -78,22 +79,30 @@ object DatabaseService {
         }
     }
 
-    suspend fun get(hash: String): List<DatabaseRecord> {
-        return dbQuery {
-            MusicFileDao
-                .select(MusicFileDao.hash eq hash)
-                .map { DatabaseRecord(it[MusicFileDao.id], it[MusicFileDao.name], it[MusicFileDao.path], it[MusicFileDao.hash], it[MusicFileDao.sync]) }
+    suspend fun drop(){
+        dbQuery {
+            SchemaUtils.drop(MusicFileDao)
+            SchemaUtils.create(MusicFileDao)
         }
     }
 
-    suspend fun getAll(): List<DatabaseRecord> {
+    suspend fun get(file: File): FileRecord? {
+        return dbQuery {
+            MusicFileDao
+                .select(MusicFileDao.path.eq(file.getPathOnly()).and(MusicFileDao.name.eq(file.name)))
+                .map { FileRecord(it[MusicFileDao.id], it[MusicFileDao.name], it[MusicFileDao.path], it[MusicFileDao.hash], it[MusicFileDao.sync]) }
+                .firstOrNull()
+        }
+    }
+
+    suspend fun getAll(): List<FileRecord> {
         return dbQuery {
             MusicFileDao.selectAll()
                 .map {
-                    DatabaseRecord(it[MusicFileDao.id], it[MusicFileDao.name], it[MusicFileDao.path], it[MusicFileDao.hash], it[MusicFileDao.sync])
+                    FileRecord(it[MusicFileDao.id], it[MusicFileDao.name], it[MusicFileDao.path], it[MusicFileDao.hash], it[MusicFileDao.sync])
                 }
         }
     }
 }
 
-data class DatabaseRecord(var id: Int? = null, var name: String, var path: String, val hash: String, var sync: Boolean){}
+data class FileRecord(var id: Int? = null, var name: String, var path: String, val hash: String, var sync: Boolean){}

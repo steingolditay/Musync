@@ -14,23 +14,16 @@ import ui.NavigationPanel
 import ui.TitleBar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.*
-import database.DatabaseService
-import database.DatabaseRecord
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import network.isError
 import ui.ServerStatusDialog
-import utils.FileUtils.calculateMD5
-import utils.FileUtils.getPathOnly
-import utils.FileUtils.isAudioFile
-import utils.PreferencesManager
-import java.io.File
+
 
 
 @Composable
 @Preview
 fun App() {
-
     var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
 
     Column (
@@ -60,6 +53,7 @@ fun main() = application {
                 showServerStatusDialog = false
             }
         }
+
     }
 
     Window(
@@ -84,7 +78,8 @@ fun main() = application {
                             },
                             onShowServerStatusDialog = {
                                 showServerStatusDialog = true
-                            }
+                            },
+                            state = windowState
                         )
                     }
                     App()
