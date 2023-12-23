@@ -10,4 +10,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "MusicSync"
+rootProject.name = "Musync"
