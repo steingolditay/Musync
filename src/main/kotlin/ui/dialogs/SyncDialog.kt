@@ -16,8 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import network.ClientApi
 import Constants.AppColors
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
@@ -26,52 +28,78 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import database.DatabaseSyncHelper
+import database.FileRecord
+import kotlinx.coroutines.Dispatchers
 
 @Composable
+@Preview
 fun SyncDialog(onDismiss: () -> Unit) {
 
     val scope = rememberCoroutineScope()
     val surfaceWidth = 350.dp
-    val surfaceHeight = 140.dp
+    val surfaceHeight = 200.dp
     val shadowSize = 16.dp
 
-    var numberOfFiles by remember { mutableStateOf(1) }
-    var fileProcessed by remember { mutableStateOf(0) }
+    var fileToProcess by remember { mutableStateOf(1) }
+    var filesProcessed by remember { mutableStateOf(0) }
 
     var titleText by remember { mutableStateOf("") }
     var bodyText by remember { mutableStateOf("") }
-    var syncWithServer by remember { mutableStateOf(false) }
 
+    val filesToUpload by remember { mutableStateOf(mutableListOf<FileRecord>()) }
+    var showUploadButton by remember { mutableStateOf(false) }
+    var fileUploadProgress by remember { mutableStateOf(0f) }
+    var isUploading by remember { mutableStateOf(false) }
+    var isFinishedUploading by remember { mutableStateOf(false) }
+
+    var numberOfFilesToUpload = 0
+    var numberOfFilesUploaded = 0
 
 
     DisposableEffect(scope){
         var currentJob: Job? = null
 
         val serverSyncJob = scope.launch(start = CoroutineStart.LAZY) {
-            val databaseRecords = DatabaseService.getAll()
+            val databaseRecords = DatabaseService.getAll().filter { it.sync }
             val response = ClientApi.syncFiles(databaseRecords)
+            response?.let {
+                if (it.isNotEmpty()){
+                    it.forEach { hashToUpload ->
+                        databaseRecords.firstOrNull { record -> record.hash == hashToUpload }?.let { record -> filesToUpload.add(record) }
+                    }
+                    numberOfFilesToUpload = it.size
+                    titleText = "Ready to upload"
+                    bodyText = "You got $numberOfFilesToUpload new files."
+                    showUploadButton = true
+                }
+                else {
+                    titleText = "You are all set"
+                    bodyText = "No files to upload"
+                }
+            }
         }
 
         val databaseSyncJob = scope.launch(start = CoroutineStart.LAZY){
             DatabaseSyncHelper.sync(
                 onSyncStarted = {
-                    numberOfFiles = it
-                    titleText = "Updating the database"
+                    fileToProcess = it
+                    titleText = "Indexing library files"
+                    bodyText = ""
                     println("Started Syncing $it Files")
                 },
                 onFileProcessed = {
-                    fileProcessed = it
-                    bodyText = "$fileProcessed / $numberOfFiles"
+                    filesProcessed = it
+                    titleText = "Indexing library files"
+                    bodyText = "$filesProcessed / $fileToProcess"
                     println("Processed $it Files")
                 },
                 onFinalizing = {
-                    titleText = "Applying changes to database"
-                    bodyText = "this might take a moment...\nPlease do not turn off."
+                    titleText = "Updating Database"
+                    bodyText = "this might take a moment..."
                 },
                 onCompletion = {
-                    titleText = "Connecting to server"
-                    bodyText = "Syncing files..."
-                    syncWithServer = true
+                    titleText = "Fetching data from server"
+                    bodyText = ""
                     currentJob = serverSyncJob
                     currentJob?.start()
                 }
@@ -91,17 +119,16 @@ fun SyncDialog(onDismiss: () -> Unit) {
         undecorated = true,
         resizable = false,
         state = DialogState(
-            size = DpSize(surfaceWidth + shadowSize, surfaceHeight + shadowSize),
-            position = WindowPosition(Alignment.Center)
+            position = WindowPosition(Alignment.Center),
+
         ),
     ){
 
         Surface(
-            modifier = Modifier
-                .size(surfaceWidth, surfaceHeight)
-                .border(1.dp, Color(0x33000000), RoundedCornerShape(8.dp)),
+            modifier = Modifier.clip(RoundedCornerShape(8.dp)),
             shape = RoundedCornerShape(8.dp),
             elevation = 8.dp,
+
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -132,9 +159,13 @@ fun SyncDialog(onDismiss: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top,
                     modifier = Modifier.fillMaxSize()
-                )
-                {
-                    Text(titleText,
+                ) {
+                    Text(
+                        when {
+                            isUploading -> "Uploading"
+                            isFinishedUploading -> "You are all set!"
+                            else -> titleText
+                        },
                         color = AppColors.white,
                         modifier = Modifier
                             .wrapContentWidth()
@@ -144,13 +175,56 @@ fun SyncDialog(onDismiss: () -> Unit) {
                         fontSize = 18.sp
                     )
                     Text(
-                        bodyText,
+                        when {
+                            isUploading -> "$numberOfFilesUploaded / $numberOfFilesToUpload"
+                            isFinishedUploading -> "All files were uploaded successfully"
+                            else -> bodyText
+                        },
                         color = AppColors.white,
                         modifier = Modifier
                             .wrapContentWidth()
                             .padding(top = 24.dp),
                         textAlign = TextAlign.Center
                     )
+                    if (showUploadButton){
+                        LinearProgressIndicator(
+                            progress = fileUploadProgress,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 32.dp)
+                        )
+                        Button(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .wrapContentWidth(),
+                            onClick = {
+                                isUploading = true
+                                scope.launch(Dispatchers.IO) {
+                                    ClientApi.uploadFiles(filesToUpload,
+                                        onFileUploadProgress = {
+                                           fileUploadProgress = it
+                                        },
+                                        onFileUploaded = {
+                                            numberOfFilesUploaded++
+                                            if (numberOfFilesUploaded == filesToUpload.size){
+                                                isUploading = false
+                                                isFinishedUploading = true
+                                                showUploadButton = false
+                                            }
+                                    })
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = AppColors.accent,
+                            ),
+                        ) {
+                            Text(
+                                text = "Upload",
+                                style = TextStyle(
+                                    color = AppColors.white,
+                                ),
+                            )
+                        }
+                    }
+
                 }
             }
 

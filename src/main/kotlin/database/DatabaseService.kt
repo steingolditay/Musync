@@ -105,4 +105,7 @@ object DatabaseService {
     }
 }
 
-data class FileRecord(var id: Int? = null, var name: String, var path: String, val hash: String, var sync: Boolean){}
+data class FileRecord(var id: Int? = null, var name: String, var path: String, val hash: String, var sync: Boolean)
+fun FileRecord.dataEqualsTo(fileRecord: FileRecord): Boolean {
+    return this.name == fileRecord.name && this.path == fileRecord.path && this.hash == fileRecord.hash
+}

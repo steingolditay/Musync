@@ -33,7 +33,20 @@ object FileUtils {
         }
     }
 
-
+    fun File.getContentType(): String {
+        val name = this.name
+        return when  {
+            name.endsWith("mp3", true) -> "audio/mpeg"
+            name.endsWith("wav", true) -> "audio/wav"
+            name.endsWith("flac", true) -> "audio/flac"
+            name.endsWith("wma", true) -> "audio/x-ms-wma"
+            name.endsWith("aiff", true) -> "audio/aiff"
+            name.endsWith("aac", true) -> "audio/aac"
+            else -> {
+                "audio/mpeg"
+            }
+        }
+    }
 
     fun File.getPathOnly(): String {
         return this.path.removeSuffix(this.name)
@@ -50,17 +63,7 @@ object FileUtils {
         val startResult = ByteArray(checkSize.toInt())
         startByteBuffer.get(startResult)
 
-//        val midPosition = (fileSize / 2 ) - (checkSize / 2)
-//        val midByteBuffer: MappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, midPosition, checkSize)
-//        val midResult = ByteArray(checkSize.toInt())
-//        midByteBuffer.get(midResult)
-//
-//        val endByteBuffer: MappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, fileSize - checkSize, checkSize)
-//        val endResult = ByteArray(checkSize.toInt())
-//        endByteBuffer.get(endResult)
-
         channel.close()
-//        val result = startResult.plus(midResult).plus(endResult)
 
         return BigInteger(1, md5.digest(startResult)).toString(16).padStart(32, '0')
     }

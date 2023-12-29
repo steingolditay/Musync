@@ -2,7 +2,7 @@ import androidx.compose.ui.graphics.Color
 
 object Constants {
 
-    val supportedAudioExtensions = arrayOf("mp3", "wav", "flac", "wma", "aiff", "ogg")
+    val supportedAudioExtensions = arrayOf("mp3", "wav", "flac", "wma", "aiff", "ogg", "aac")
 
 
     object AppColors {

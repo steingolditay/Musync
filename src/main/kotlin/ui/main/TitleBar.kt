@@ -33,14 +33,15 @@ import network.ServerStatus
 fun TitleBar(onApplicationExit: () -> Unit,
              onShowServerStatusDialog: () -> Unit,
              state: WindowState) {
+
     val scope = rememberCoroutineScope()
     var serverStatus by remember { mutableStateOf(ServerStatus.UNKNOWN) }
 
     scope.launch {
+        ClientApi.isServerAlive()
         ClientApi.serverStatus.collectLatest {
             serverStatus = it
         }
-        ClientApi.isServerAlive()
     }
 
 
