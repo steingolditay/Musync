@@ -22,6 +22,7 @@ import ui.dialogs.ServerStatusDialog
 @Composable
 @Preview
 fun App() {
+    //.\gradlew :createDistributable
     var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
 
     Column (
