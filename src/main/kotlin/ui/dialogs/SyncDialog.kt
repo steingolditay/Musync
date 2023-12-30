@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import network.ClientApi
 import Constants.AppColors
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.border
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -29,77 +28,51 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import database.DatabaseSyncHelper
 import database.FileRecord
-import kotlinx.coroutines.Dispatchers
+import enums.SyncProgress
+import ui.music.SyncItem
+import utils.SyncManager
 
 @Composable
 @Preview
 fun SyncDialog(onDismiss: () -> Unit) {
 
     val scope = rememberCoroutineScope()
-    val surfaceWidth = 350.dp
-    val surfaceHeight = 200.dp
-    val shadowSize = 16.dp
 
-    var fileToProcess by remember { mutableStateOf(1) }
-    var filesProcessed by remember { mutableStateOf(0) }
-
-    var titleText by remember { mutableStateOf("") }
-    var bodyText by remember { mutableStateOf("") }
-
-    val filesToUpload by remember { mutableStateOf(mutableListOf<FileRecord>()) }
-    var showUploadButton by remember { mutableStateOf(false) }
-    var fileUploadProgress by remember { mutableStateOf(0f) }
-    var isUploading by remember { mutableStateOf(false) }
-    var isFinishedUploading by remember { mutableStateOf(false) }
-
-    var numberOfFilesToUpload = 0
-    var numberOfFilesUploaded = 0
-
-
-    DisposableEffect(scope){
-        var currentJob: Job? = null
+    DisposableEffect(scope) {
+        var currentJob: Job?
 
         val serverSyncJob = scope.launch(start = CoroutineStart.LAZY) {
             val databaseRecords = DatabaseService.getAll().filter { it.sync }
             val response = ClientApi.syncFiles(databaseRecords)
             response?.let {
-                if (it.isNotEmpty()){
-                    it.forEach { hashToUpload ->
-                        databaseRecords.firstOrNull { record -> record.hash == hashToUpload }?.let { record -> filesToUpload.add(record) }
-                    }
-                    numberOfFilesToUpload = it.size
-                    titleText = "Ready to upload"
-                    bodyText = "You got $numberOfFilesToUpload new files."
-                    showUploadButton = true
-                }
-                else {
-                    titleText = "You are all set"
-                    bodyText = "No files to upload"
+                if (it.isNotEmpty()) {
+                    SyncManager.setNumberOfFilesToUpload(it.size)
+                    SyncManager.setFilesToUpload(it.map { hash -> databaseRecords.first { record -> record.hash == hash} })
+                    SyncManager.setProgressState(SyncProgress.READY)
+                } else {
+                    SyncManager.setProgressState(SyncProgress.COMPLETE)
                 }
             }
         }
 
-        val databaseSyncJob = scope.launch(start = CoroutineStart.LAZY){
+        val databaseSyncJob = scope.launch(start = CoroutineStart.LAZY) {
             DatabaseSyncHelper.sync(
                 onSyncStarted = {
-                    fileToProcess = it
-                    titleText = "Indexing library files"
-                    bodyText = ""
+                    SyncManager.setProgressState(SyncProgress.INDEXING)
+                    SyncManager.setNumberOfFilesToProcess(it)
                     println("Started Syncing $it Files")
                 },
                 onFileProcessed = {
-                    filesProcessed = it
-                    titleText = "Indexing library files"
-                    bodyText = "$filesProcessed / $fileToProcess"
+                    SyncManager.setProgressState(SyncProgress.PROCESSING)
+                    SyncManager.setNumberOfFilesProcessed(it)
                     println("Processed $it Files")
                 },
                 onFinalizing = {
-                    titleText = "Updating Database"
-                    bodyText = "this might take a moment..."
+                    SyncManager.setProgressState(SyncProgress.FINALIZING)
+
                 },
                 onCompletion = {
-                    titleText = "Fetching data from server"
-                    bodyText = ""
+                    SyncManager.setProgressState(SyncProgress.FETCHING)
                     currentJob = serverSyncJob
                     currentJob?.start()
                 }
@@ -114,29 +87,21 @@ fun SyncDialog(onDismiss: () -> Unit) {
     }
 
 
-    Dialog(onDismiss,
+    Dialog(
+        onDismiss,
         transparent = true,
         undecorated = true,
         resizable = false,
-        state = DialogState(
-            position = WindowPosition(Alignment.Center),
-
-        ),
-    ){
+        state = DialogState(position = WindowPosition(Alignment.Center), size = DpSize(450.dp, 450.dp))
+    ) {
 
         Surface(
-            modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+            modifier = Modifier.clip(RoundedCornerShape(8.dp)).wrapContentWidth().wrapContentHeight().padding(),
             shape = RoundedCornerShape(8.dp),
             elevation = 8.dp,
 
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .background(AppColors.dialogBackground)
-                    .padding(8.dp),
-
-                ) {
+            ) {
+            Column {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End,
@@ -149,85 +114,34 @@ fun SyncDialog(onDismiss: () -> Unit) {
                         contentDescription = "Exit",
                         tint = AppColors.white,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(4.dp)
+                            .size(20.dp)
                             .clickable {
                                 onDismiss.invoke()
                             }
                     )
                 }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        when {
-                            isUploading -> "Uploading"
-                            isFinishedUploading -> "You are all set!"
-                            else -> titleText
-                        },
-                        color = AppColors.white,
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(top = 8.dp),
-                        textAlign = TextAlign.Center,
-                        style = TextStyle(fontWeight = FontWeight.Bold),
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        when {
-                            isUploading -> "$numberOfFilesUploaded / $numberOfFilesToUpload"
-                            isFinishedUploading -> "All files were uploaded successfully"
-                            else -> bodyText
-                        },
-                        color = AppColors.white,
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(top = 24.dp),
-                        textAlign = TextAlign.Center
-                    )
-                    if (showUploadButton){
-                        LinearProgressIndicator(
-                            progress = fileUploadProgress,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 32.dp)
-                        )
-                        Button(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .wrapContentWidth(),
-                            onClick = {
-                                isUploading = true
-                                scope.launch(Dispatchers.IO) {
-                                    ClientApi.uploadFiles(filesToUpload,
-                                        onFileUploadProgress = {
-                                           fileUploadProgress = it
-                                        },
-                                        onFileUploaded = {
-                                            numberOfFilesUploaded++
-                                            if (numberOfFilesUploaded == filesToUpload.size){
-                                                isUploading = false
-                                                isFinishedUploading = true
-                                                showUploadButton = false
-                                            }
-                                    })
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = AppColors.accent,
-                            ),
-                        ) {
-                            Text(
-                                text = "Upload",
-                                style = TextStyle(
-                                    color = AppColors.white,
-                                ),
-                            )
-                        }
-                    }
+                SyncProgress.values().forEach {
+                    SyncItem(it)
+                }
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Exit",
+                        tint = Color.Transparent,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(20.dp)
+                    )
                 }
             }
-
         }
     }
 }

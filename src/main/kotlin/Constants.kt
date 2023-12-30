@@ -6,8 +6,8 @@ object Constants {
 
 
     object AppColors {
-        val background = Color(0xFF151515)
-        val dialogBackground = Color(0xFF222222)
+        val background = Color(0xFF171717)
+        val dialogBackground = Color(0xFF1C1C1C)
         val accent = Color(0xFF7EA3CC)
         val green = Color(0xFF41D6A2)
         val red = Color(0xFFD64040)
@@ -37,6 +37,16 @@ object Constants {
         const val floating = "floating.png"
         const val sync = "sync.svg"
         const val dontSync = "dont_sync.svg"
+
+        const val complete = "complete.svg"
+        const val fetching = "fetching.svg"
+        const val finalizing = "finalizing.svg"
+        const val indexing = "indexing.svg"
+        const val processing = "processing.svg"
+        const val ready = "ready.svg"
+        const val uploading = "uploading.svg"
+
+
 
     }
 

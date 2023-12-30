@@ -14,8 +14,10 @@ import utils.FileUtils
 import utils.PreferencesManager
 import Constants.StringResources
 import Constants.AppColors
+import androidx.compose.desktop.ui.tooling.preview.Preview
 
 @Composable
+@Preview
 fun EmptyState(onDirectorySelected: (directory: String) -> Unit){
     Text(StringResources.noDirectorySelected,
         modifier = Modifier

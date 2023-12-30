@@ -24,6 +24,7 @@ import ui.dialogs.SyncDialog
 import utils.FileUtils
 import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
+import utils.SyncManager
 import kotlin.io.path.Path
 
 @Composable
@@ -50,6 +51,7 @@ fun MusicTab() {
     if (showSyncDialog) {
         SyncDialog(
             onDismiss = {
+                SyncManager.reset()
                 showSyncDialog = false
             },
         )
