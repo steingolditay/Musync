@@ -17,6 +17,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.clip
 import database.DatabaseService
 import database.getFullPath
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ui.dialogs.SyncDialog
@@ -32,10 +33,13 @@ fun MusicTab() {
     var showSyncDialog by remember { mutableStateOf(false) }
     var syncedFiles by remember { mutableStateOf(listOf<String>()) }
 
+
+    val syncJob = scope.launch(start = CoroutineStart.LAZY, context = Dispatchers.IO) {
+        syncedFiles = DatabaseService.getAll().filter { it.sync }.map { it.getFullPath() }.toList()
+    }
+
     LaunchedEffect(scope) {
-        scope.launch(Dispatchers.IO){
-            syncedFiles = DatabaseService.getAll().filter { it.sync }.map { it.getFullPath() }.toList()
-        }
+        syncJob.start()
     }
 
     PreferencesManager.getMusicDir()?.let {
@@ -71,7 +75,7 @@ fun MusicTab() {
                 }
             }
 
-            if (syncedFiles.isNotEmpty()){
+            if (syncedFiles.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
                         .weight(1.0f)
@@ -94,6 +98,9 @@ fun MusicTab() {
                                         } else {
                                             syncedFiles -= fullPath
                                         }
+                                    },
+                                    onInnerFilesSyncChanged = {
+                                        syncJob.start()
                                     },
                                     onDirectorySelected = { dirPath ->
                                         currentDirectory = dirPath

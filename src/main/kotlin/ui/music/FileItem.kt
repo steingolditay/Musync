@@ -27,7 +27,8 @@ import Constants.ImageResources
 fun FileItem(file: File,
              isSynced: Boolean,
              onDirectorySelected: (path: String) -> Unit,
-             onSyncStateChanged: (state: Boolean) -> Unit
+             onSyncStateChanged: (state: Boolean) -> Unit,
+             onInnerFilesSyncChanged: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var syncState by remember { mutableStateOf(false) }
@@ -107,6 +108,7 @@ fun FileItem(file: File,
                                     DatabaseService.updateSync(this)
                                 }
                             }
+                            onInnerFilesSyncChanged()
                         }
                     }
             )
@@ -120,13 +122,18 @@ fun FileItem(file: File,
                     .padding(end = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        file.walk().filter { it.isAudioFile() }.forEach {
-                            scope.launch(Dispatchers.IO) {
+                        val nestedFiles = file.walk().filter { it.isAudioFile() }.toList()
+                        if (nestedFiles.isEmpty()) {
+                            return@clickable
+                        }
+                        scope.launch(Dispatchers.IO) {
+                            nestedFiles.forEach {
                                 DatabaseService.get(it)?.apply {
                                     sync = true
                                     DatabaseService.updateSync(this)
                                 }
                             }
+                            onInnerFilesSyncChanged()
                         }
                     }
             )
