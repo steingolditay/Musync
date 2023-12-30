@@ -52,6 +52,11 @@ object FileUtils {
         return this.path.removeSuffix(this.name)
     }
 
+    fun File.getFullPath(): String {
+        return "${this.getPathOnly()}${this.name}"
+    }
+
+
 
     fun File.calculateMD5(): String {
 

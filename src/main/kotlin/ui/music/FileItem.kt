@@ -16,27 +16,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import database.DatabaseService
-import database.FileRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import network.ClientApi
 import utils.FileUtils.isAudioFile
 import java.io.File
 import Constants.AppColors
 import Constants.ImageResources
 
 @Composable
-fun FileItem(file: File, onDirectorySelected: (path: String) -> Unit) {
+fun FileItem(file: File,
+             isSynced: Boolean,
+             onDirectorySelected: (path: String) -> Unit,
+             onSyncStateChanged: (state: Boolean) -> Unit
+) {
     val scope = rememberCoroutineScope()
-    var fileRecord: FileRecord? by remember { mutableStateOf(null) }
-
-
-    if (!file.isDirectory) {
-        scope.launch(Dispatchers.IO) {
-            fileRecord = DatabaseService.get(file)
-        }
-    }
-
+    var syncState by remember { mutableStateOf(false) }
+    syncState = isSynced
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
@@ -72,18 +67,21 @@ fun FileItem(file: File, onDirectorySelected: (path: String) -> Unit) {
 
         if (!file.isDirectory) {
             Icon(
-                painter = painterResource(if (fileRecord?.sync == true) ImageResources.sync else ImageResources.dontSync),
+                painter = painterResource(if (syncState) ImageResources.sync else ImageResources.dontSync),
                 contentDescription = null,
-                tint = if (fileRecord?.sync == true) AppColors.accent else AppColors.disabled,
+                tint = if (syncState) AppColors.accent else AppColors.disabled,
                 modifier = Modifier
                     .padding(8.dp)
                     .size(24.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        fileRecord?.let {
-                            val updatedRecord = it.copy(sync = !it.sync)
-                            fileRecord = updatedRecord
-                            scope.launch(Dispatchers.IO) { DatabaseService.updateSync(updatedRecord) }
+                        syncState = !syncState
+                        onSyncStateChanged(syncState)
+                        scope.launch(Dispatchers.IO) {
+                            DatabaseService.get(file)?.let { fileRecord ->
+                                val updatedRecord = fileRecord.copy(sync = syncState)
+                                DatabaseService.updateSync(updatedRecord)
+                            }
                         }
                     }
 

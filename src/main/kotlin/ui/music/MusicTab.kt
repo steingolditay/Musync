@@ -16,11 +16,12 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.clip
 import database.DatabaseService
+import database.getFullPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import network.ClientApi
 import ui.dialogs.SyncDialog
 import utils.FileUtils
+import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
 import kotlin.io.path.Path
 
@@ -29,6 +30,13 @@ fun MusicTab() {
     val scope = rememberCoroutineScope()
     var currentDirectory by remember { mutableStateOf("") }
     var showSyncDialog by remember { mutableStateOf(false) }
+    var syncedFiles by remember { mutableStateOf(listOf<String>()) }
+
+    LaunchedEffect(scope) {
+        scope.launch(Dispatchers.IO){
+            syncedFiles = DatabaseService.getAll().filter { it.sync }.map { it.getFullPath() }.toList()
+        }
+    }
 
     PreferencesManager.getMusicDir()?.let {
         if (currentDirectory.isBlank() && it.isNotBlank()) {
@@ -63,62 +71,76 @@ fun MusicTab() {
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1.0f)
-                    .fillMaxWidth()
-                    .background(AppColors.background)
-            ) {
-                val directory = File(currentDirectory)
-                directory.listFiles()
-                    ?.filter { it.isDirectory || it.isAudioFile() }
-                    ?.sortedByDescending { it.isDirectory }
-                    ?.let { fileList ->
-                        items(fileList.size) { it ->
-                            val file = fileList[it]
-                            FileItem(file) { dirPath ->
-                                currentDirectory = dirPath
+            if (syncedFiles.isNotEmpty()){
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1.0f)
+                        .fillMaxWidth()
+                        .background(AppColors.background)
+                ) {
+                    val directory = File(currentDirectory)
+                    directory.listFiles()
+                        ?.filter { it.isDirectory || it.isAudioFile() }
+                        ?.sortedByDescending { it.isDirectory }
+                        ?.let { fileList ->
+                            items(fileList.size) { it ->
+                                val file = fileList[it]
+                                val fullPath = file.getFullPath()
+                                val isSynced = syncedFiles.contains(fullPath)
+                                FileItem(file, isSynced,
+                                    onSyncStateChanged = {
+                                        if (it) {
+                                            syncedFiles += fullPath
+                                        } else {
+                                            syncedFiles -= fullPath
+                                        }
+                                    },
+                                    onDirectorySelected = { dirPath ->
+                                        currentDirectory = dirPath
+
+                                    })
                             }
                         }
-                    }
-            }
+                }
 
-            Row {
-                Button(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .wrapContentHeight()
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(AppColors.accent),
-                    onClick = {
-                        val musicFolderPath = FileUtils.pickFolder()
-                        musicFolderPath?.let {
-                            scope.launch(Dispatchers.IO) {
-                                DatabaseService.drop().also {
-                                    showSyncDialog = true
+                Row {
+                    Button(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .wrapContentHeight()
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(AppColors.accent),
+                        onClick = {
+                            val musicFolderPath = FileUtils.pickFolder()
+                            musicFolderPath?.let {
+                                scope.launch(Dispatchers.IO) {
+                                    DatabaseService.drop().also {
+                                        showSyncDialog = true
+                                    }
+                                    PreferencesManager.setMusicDir(it)
+                                    currentDirectory = it
                                 }
-                                PreferencesManager.setMusicDir(it)
-                                currentDirectory = it
-                            }
 
+                            }
                         }
+                    ) {
+                        Text("Change Folder", color = AppColors.white)
                     }
-                ) {
-                    Text("Change Folder", color = AppColors.white)
-                }
-                Button(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .wrapContentHeight()
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(AppColors.accent),
-                    onClick = {
-                        showSyncDialog = true
+                    Button(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .wrapContentHeight()
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(AppColors.accent),
+                        onClick = {
+                            showSyncDialog = true
+                        }
+                    ) {
+                        Text("Sync", color = AppColors.white)
                     }
-                ) {
-                    Text("Sync", color = AppColors.white)
                 }
             }
+
 
         } else {
             EmptyState {
