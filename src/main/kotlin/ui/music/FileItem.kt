@@ -22,6 +22,14 @@ import utils.FileUtils.isAudioFile
 import java.io.File
 import Constants.AppColors
 import Constants.ImageResources
+import androidx.compose.material.icons.filled.PlayArrow
+import javazoom.jl.player.Player
+import kotlinx.coroutines.runBlocking
+import utils.FileUtils.getFullPath
+import java.io.FileInputStream
+import javax.print.attribute.standard.Media
+import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.Clip
 
 @Composable
 fun FileItem(file: File,
@@ -82,6 +90,25 @@ fun FileItem(file: File,
                             DatabaseService.get(file)?.let { fileRecord ->
                                 val updatedRecord = fileRecord.copy(sync = syncState)
                                 DatabaseService.updateSync(updatedRecord)
+                            }
+                        }
+                    }
+
+            )
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                tint = AppColors.white,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable {
+                        scope.launch(Dispatchers.Default) {
+                            runBlocking {
+                                val player = Player(FileInputStream(file))
+                                player
+                                player.play()
                             }
                         }
                     }

@@ -11,6 +11,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven( "https://jitpack.io")
     google()
 }
 
@@ -24,7 +25,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
-
     val exposedVersion = "0.45.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
@@ -33,7 +33,12 @@ dependencies {
     val h2Version= "2.2.224"
     implementation("com.h2database:h2:$h2Version")
 
-    testImplementation("junit:junit:4.13.2")
+    implementation ("com.github.umjammer:jlayer:1.0.2")
+
+    val junitVersion = "4.13.2"
+    testImplementation("junit:junit:$junitVersion")
+
+
 
 }
 
