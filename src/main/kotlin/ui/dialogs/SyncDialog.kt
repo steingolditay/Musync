@@ -1,6 +1,5 @@
 package ui.dialogs
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import network.ClientApi
 import Constants.AppColors
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -27,9 +22,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import database.DatabaseSyncHelper
-import database.FileRecord
 import enums.SyncProgress
-import ui.music.SyncItem
+import ui.sync.SyncItem
 import utils.SyncManager
 
 @Composable

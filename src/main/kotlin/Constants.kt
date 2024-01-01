@@ -20,7 +20,7 @@ object Constants {
     }
 
     object StringResources {
-        const val appName = "FileSync"
+        const val appName = "Musync"
         const val noDirectorySelected = "No directory selected"
         const val selectDirectory = "Select Directory"
         const val serverStatusOffline = "Server seems to be offline."

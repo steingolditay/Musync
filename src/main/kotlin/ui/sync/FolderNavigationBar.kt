@@ -1,4 +1,4 @@
-package ui.music
+package ui.sync
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +16,8 @@ import Constants.AppColors
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -60,7 +62,7 @@ fun FolderNavigationBar(currentPath: String, onBackNavigation: () -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = AppColors.white,
-            style = TextStyle(fontSize = 14.sp),
+            style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
             modifier = Modifier
                 .wrapContentHeight()
                 .wrapContentWidth()

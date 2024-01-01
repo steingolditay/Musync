@@ -30,20 +30,18 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-        .fillMaxWidth(0.2f)
+        .fillMaxWidth(0.15f)
         .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
         .clip(RoundedCornerShape(8.dp))
         .background(AppColors.background)
 
 
     ) {
-        // logo
         Image(
             painterResource(ImageResources.logo),
             contentDescription = "logo",
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.20f)
+                .size(128.dp)
                 .background(AppColors.background)
         )
 
@@ -52,6 +50,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxHeight()
+                .weight(1f)
         ) {
             items(navigationTabs.size){ it ->
                 val tab = navigationTabs[it]

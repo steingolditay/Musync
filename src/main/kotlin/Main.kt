@@ -16,11 +16,13 @@ import ui.main.NavigationPanel
 import ui.main.TitleBar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import network.isError
 import ui.dialogs.ServerStatusDialog
+import java.awt.Dimension
 
 @Composable
 @Preview
@@ -44,7 +46,7 @@ fun App() {
 
 
 fun main() = application {
-    val windowState = rememberWindowState(position = WindowPosition(Alignment.Center))
+    val windowState = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1280.dp, 768.dp))
     var showServerStatusDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -57,14 +59,15 @@ fun main() = application {
     }
 
     Window(
+
         onCloseRequest = ::exitApplication,
         transparent = true,
         undecorated = true,
         title = Constants.StringResources.appName,
         icon = painterResource(Constants.ImageResources.logo),
-        state = windowState
+        state = windowState,
         ) {
-
+    window.minimumSize = Dimension(800, 600)
         MaterialTheme(darkColors(surface = Constants.AppColors.surfaceColor)) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

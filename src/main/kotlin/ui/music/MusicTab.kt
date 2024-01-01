@@ -2,9 +2,7 @@ package ui.music
 
 import Constants
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import utils.PreferencesManager
@@ -16,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material.Icon
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import database.DatabaseService
 import database.getFullPath
@@ -24,6 +21,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ui.dialogs.SyncDialog
+import ui.sync.EmptyState
 import utils.FileUtils
 import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
@@ -77,50 +75,15 @@ fun MusicTab() {
 
         ) {
             if (currentDirectory.isNotBlank()) {
-                FolderNavigationBar(currentDirectory) {
-                    if (currentDirectory != PreferencesManager.getMusicDir()) {
-                        val backPath =
-                            currentDirectory.removeSuffix(Path(currentDirectory).last().toString()).removeSuffix("\\")
-                        currentDirectory = backPath
-                    }
+                Column(modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(AppColors.background)){
+
                 }
-
-                if (syncedFiles.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1.0f)
-                            .fillMaxWidth()
-                            .background(AppColors.background)
-                    ) {
-                        val directory = File(currentDirectory)
-                        directory.listFiles()
-                            ?.filter { it.isDirectory || it.isAudioFile() }
-                            ?.sortedByDescending { it.isDirectory }
-                            ?.let { fileList ->
-                                items(fileList.size) { it ->
-                                    val file = fileList[it]
-                                    val fullPath = file.getFullPath()
-                                    val isSynced = syncedFiles.contains(fullPath)
-                                    FileItem(file, isSynced,
-                                        onSyncStateChanged = {
-                                            if (it) {
-                                                syncedFiles += fullPath
-                                            } else {
-                                                syncedFiles -= fullPath
-                                            }
-                                        },
-                                        onInnerFilesSyncChanged = {
-                                            syncJob.start()
-                                        },
-                                        onDirectorySelected = { dirPath ->
-                                            currentDirectory = dirPath
-
-                                        })
-                                }
-                            }
-                    }
-                }
-
             } else {
                 EmptyState {
                     currentDirectory = it
@@ -134,45 +97,11 @@ fun MusicTab() {
         }
         Column(modifier = Modifier
             .fillMaxHeight()
-            .wrapContentWidth()
+            .fillMaxWidth()
+            .weight(1f)
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(AppColors.background)){
-
-            Icon(
-                painter = painterResource(Constants.ImageResources.indexing),
-                contentDescription = "change folder",
-                tint = AppColors.white,
-                modifier = Modifier
-                    .padding(top = 16.dp, start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .size(20.dp)
-                    .clickable {
-                        val musicFolderPath = FileUtils.pickFolder()
-                        musicFolderPath?.let {
-                            scope.launch(Dispatchers.IO) {
-                                DatabaseService.drop().also {
-                                    showSyncDialog = true
-                                }
-                                PreferencesManager.setMusicDir(it)
-                                currentDirectory = it
-                            }
-                        }
-                    }
-            )
-
-            Icon(
-                painter = painterResource(Constants.ImageResources.sync),
-                contentDescription = "sync",
-                tint = AppColors.white,
-                modifier = Modifier
-                    .padding(top = 16.dp, start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .size(20.dp)
-                    .clickable {
-                        showSyncDialog = true
-                    }
-            )
-
-
 
         }
     }

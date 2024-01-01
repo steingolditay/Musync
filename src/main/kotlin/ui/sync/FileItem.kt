@@ -1,4 +1,4 @@
-package ui.music
+package ui.sync
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
