@@ -31,7 +31,7 @@ fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
         .fillMaxWidth(0.2f)
-        .padding(vertical = 8.dp, horizontal = 8.dp)
+        .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
         .clip(RoundedCornerShape(8.dp))
         .background(AppColors.background)
 

@@ -22,6 +22,8 @@ import utils.FileUtils.isAudioFile
 import java.io.File
 import Constants.AppColors
 import Constants.ImageResources
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun FileItem(file: File,
@@ -58,6 +60,7 @@ fun FileItem(file: File,
             file.name,
             color = AppColors.white,
             maxLines = 1,
+            style = TextStyle(fontSize = 14.sp),
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .wrapContentHeight()
@@ -73,8 +76,7 @@ fun FileItem(file: File,
                 tint = if (syncState) AppColors.accent else AppColors.disabled,
                 modifier = Modifier
                     .padding(8.dp)
-                    .size(24.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(20.dp)
                     .clickable {
                         syncState = !syncState
                         onSyncStateChanged(syncState)

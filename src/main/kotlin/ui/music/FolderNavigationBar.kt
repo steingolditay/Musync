@@ -15,6 +15,8 @@ import Constants.ImageResources
 import Constants.AppColors
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun FolderNavigationBar(currentPath: String, onBackNavigation: () -> Unit) {
@@ -50,15 +52,6 @@ fun FolderNavigationBar(currentPath: String, onBackNavigation: () -> Unit) {
                 tint = if (currentPath != originPath) AppColors.white else AppColors.disabled,
                 modifier = Modifier
                     .padding(8.dp)
-//                    .size(24.dp)
-//                    .let {
-//                        if (currentPath != originPath) {
-//                            return@let it.clickable {
-//                                onBackNavigation.invoke()
-//                            }
-//                        }
-//                        it
-//                    }
             )
         }
 
@@ -67,6 +60,7 @@ fun FolderNavigationBar(currentPath: String, onBackNavigation: () -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = AppColors.white,
+            style = TextStyle(fontSize = 14.sp),
             modifier = Modifier
                 .wrapContentHeight()
                 .wrapContentWidth()

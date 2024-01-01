@@ -37,12 +37,17 @@ fun TitleBar(onApplicationExit: () -> Unit,
     val scope = rememberCoroutineScope()
     var serverStatus by remember { mutableStateOf(ServerStatus.UNKNOWN) }
 
-    scope.launch {
-        ClientApi.isServerAlive()
-        ClientApi.serverStatus.collectLatest {
-            serverStatus = it
+
+    LaunchedEffect(scope){
+        scope.launch {
+            ClientApi.isServerAlive()
+            ClientApi.serverStatus.collectLatest {
+                serverStatus = it
+            }
         }
+
     }
+
 
 
     Surface {
@@ -51,7 +56,7 @@ fun TitleBar(onApplicationExit: () -> Unit,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(AppColors.background)
 
