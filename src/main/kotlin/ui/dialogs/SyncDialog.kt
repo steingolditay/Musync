@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import database.DatabaseSyncHelper
 import enums.SyncProgress
 import ui.sync.SyncItem
-import utils.SyncManager
+import ui.SyncManager
 
 @Composable
 @Preview

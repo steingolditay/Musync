@@ -10,6 +10,7 @@ object Constants {
         val background = Color(0xFF26282b)
         val dialogBackground = Color(0xFF1C1C1C)
         val accent = Color(0xFF7EA3CC)
+        val accentDark = Color(0xFF383D44)
         val green = Color(0xFF41D6A2)
         val red = Color(0xFFD64040)
 
@@ -47,8 +48,10 @@ object Constants {
         const val ready = "ready.svg"
         const val uploading = "uploading.svg"
 
-
-
+        const val play = "play.svg"
+        const val pause = "pause.svg"
+        const val next = "next.svg"
+        const val previous = "previous.svg"
     }
 
 }

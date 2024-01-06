@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import utils.FileUtils
-import utils.PreferencesManager
+import ui.PreferencesManager
 import Constants.StringResources
 import Constants.AppColors
 import androidx.compose.desktop.ui.tooling.preview.Preview

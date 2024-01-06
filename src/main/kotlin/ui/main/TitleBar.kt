@@ -56,10 +56,7 @@ fun TitleBar(onApplicationExit: () -> Unit,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(AppColors.background)
-
+                .padding(start = 8.dp, end = 8.dp, top = 4.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(0.5f)
@@ -88,27 +85,6 @@ fun TitleBar(onApplicationExit: () -> Unit,
                             }
                     )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
-                    tint = AppColors.white,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = AppColors.white,
-                    modifier = Modifier.padding(start = 8.dp, end = 16.dp)
-                        .clickable {
-                            scope.launch {
-                                DatabaseService.getAll().forEach { println(it) }
-                            }
-                        }
-
-
-                )
 
                 Spacer(modifier = Modifier
                     .width(1.dp)
@@ -144,7 +120,6 @@ fun TitleBar(onApplicationExit: () -> Unit,
                             onApplicationExit()
                         }
                 )
-
             }
         }
     }

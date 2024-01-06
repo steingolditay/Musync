@@ -1,6 +1,7 @@
 package utils
 
 import Constants
+import com.mpatric.mp3agic.Mp3File
 
 import java.io.File
 import java.math.BigInteger
@@ -54,6 +55,14 @@ object FileUtils {
 
     fun File.getFullPath(): String {
         return "${this.getPathOnly()}${this.name}"
+    }
+
+    fun File.getLengthInSeconds(): Long {
+        return Mp3File(this.getFullPath()).lengthInSeconds
+    }
+
+    fun File.getLengthInMilliseconds(): Long {
+        return Mp3File(this.getFullPath()).lengthInMilliseconds
     }
 
 

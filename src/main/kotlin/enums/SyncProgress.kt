@@ -1,7 +1,5 @@
 package enums
 
-import utils.SyncManager
-
 enum class SyncProgress(val title: String, val stepNumber: Int) {
     INDEXING("Indexing files", 1),
     PROCESSING("Processing files - %d / %d", 2),

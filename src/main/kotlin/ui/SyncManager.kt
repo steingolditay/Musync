@@ -1,4 +1,4 @@
-package utils
+package ui
 
 import database.FileRecord
 import enums.SyncProgress
@@ -59,7 +59,8 @@ object SyncManager {
     }
 
     suspend fun uploadFiles(){
-        ClientApi.uploadFiles(filesToUpload.value,
+        ClientApi.uploadFiles(
+            filesToUpload.value,
             onFileUploaded = {
                 setNumberOfFilesUploaded(numberOfFilesUploaded.value + 1)
                 if (numberOfFilesToUpload.value == numberOfFilesUploaded.value){

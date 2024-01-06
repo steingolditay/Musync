@@ -28,7 +28,7 @@ import java.awt.Dimension
 @Preview
 fun App() {
     //.\gradlew :createDistributable
-    var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
+    var selectedTab by remember { mutableStateOf(NavigationTab.Library) }
 
     Column (
         modifier = Modifier.fillMaxSize(),

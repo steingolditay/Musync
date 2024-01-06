@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import utils.PreferencesManager
+import ui.PreferencesManager
 import Constants.AppColors
 import java.io.File
 import androidx.compose.foundation.*
@@ -24,7 +24,7 @@ import ui.dialogs.SyncDialog
 import utils.FileUtils
 import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
-import utils.SyncManager
+import ui.SyncManager
 import kotlin.io.path.Path
 
 @Composable

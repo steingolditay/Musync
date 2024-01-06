@@ -24,7 +24,7 @@ import androidx.compose.ui.draw.clip
 @Composable
 @Preview
 fun NavigationPanel(onTabSelected:(tab: NavigationTab) -> Unit) {
-    var selectedTab by remember { mutableStateOf(NavigationTab.Music) }
+    var selectedTab by remember { mutableStateOf(NavigationTab.Library) }
     val navigationTabs by remember { mutableStateOf(NavigationTab.values()) }
 
     Column(

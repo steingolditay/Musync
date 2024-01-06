@@ -19,7 +19,7 @@ import enums.relativeProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import utils.SyncManager
+import ui.SyncManager
 import utils.SyncUtils.getImageResourceForProgress
 
 

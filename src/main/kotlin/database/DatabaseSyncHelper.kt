@@ -6,9 +6,8 @@ import kotlinx.coroutines.withContext
 import utils.FileUtils.calculateMD5
 import utils.FileUtils.getPathOnly
 import utils.FileUtils.isAudioFile
-import utils.PreferencesManager
+import ui.PreferencesManager
 import java.io.File
-import kotlin.math.ln
 
 object DatabaseSyncHelper {
 

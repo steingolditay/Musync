@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import utils.PreferencesManager
+import ui.PreferencesManager
 import Constants.ImageResources
 import Constants.AppColors
 import androidx.compose.foundation.shape.RoundedCornerShape

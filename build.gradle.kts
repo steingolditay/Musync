@@ -9,9 +9,10 @@ group = "com.busitay"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    google()
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    google()
+    maven( "https://jitpack.io")
 }
 
 dependencies {
@@ -24,7 +25,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
-
     val exposedVersion = "0.45.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
@@ -33,7 +33,14 @@ dependencies {
     val h2Version= "2.2.224"
     implementation("com.h2database:h2:$h2Version")
 
-    testImplementation("junit:junit:4.13.2")
+    val javaStreamPlayerVersion = "9.0.4"
+    implementation ("com.github.goxr3plus:java-stream-player:$javaStreamPlayerVersion")
+
+    val mp3agicVersion = "0.9.1"
+    implementation ("com.mpatric:mp3agic:$mp3agicVersion")
+
+    val junitVersion = "4.13.2"
+    testImplementation("junit:junit:$junitVersion")
 
 }
 
@@ -42,6 +49,8 @@ kotlin {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+
 }
 
 compose.desktop {
@@ -58,5 +67,7 @@ compose.desktop {
                 "-Dapple.awt.application.appearance=system"
             )
         }
+
+
     }
 }
