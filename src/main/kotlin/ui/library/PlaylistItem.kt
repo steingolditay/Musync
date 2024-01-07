@@ -18,13 +18,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import com.mpatric.mp3agic.Mp3File
 import kotlinx.coroutines.flow.collectLatest
 import ui.PlayerManager
+import utils.FileUtils.getFullPath
+import utils.PlayerUtils
+
 
 @Composable
 fun PlaylistItem(filePath: String,
@@ -32,10 +35,17 @@ fun PlaylistItem(filePath: String,
                  onPlayPressed: () -> Unit,
                  onRemovePressed: () -> Unit
 ) {
-    val file = File(filePath)
-    val scope = rememberCoroutineScope()
 
+    val scope = rememberCoroutineScope()
     var isCurrentlyPlaying by remember { mutableStateOf(false) }
+
+    val file = File(filePath)
+    val mp3File = Mp3File(file.getFullPath())
+    val title = mp3File.id3v1Tag?.title ?: mp3File.id3v2Tag?.title ?: file.name
+    val album = mp3File.id3v1Tag?.album ?: mp3File.id3v2Tag?.album ?: ""
+    val artist = mp3File.id3v1Tag?.artist ?: mp3File.id3v2Tag?.artist ?: ""
+    val duration = mp3File.lengthInSeconds
+
 
     LaunchedEffect(scope){
         PlayerManager.currentPlayingIndex.collectLatest {
@@ -49,16 +59,17 @@ fun PlaylistItem(filePath: String,
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .background(if (index % 2 == 0) Color.Transparent else AppColors.accentDark)
+            .background(if (index % 2 == 0) Color.Transparent else AppColors.accentDarker)
+            .padding(vertical = 8.dp)
     ) {
 
-        Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp).size(8.dp)){
+        Box(modifier = Modifier.width(32.dp).size(8.dp), contentAlignment = Alignment.Center){
             if (isCurrentlyPlaying){
                 Icon(
                     painter = painterResource(ImageResources.audio),
                     contentDescription = null,
                     tint = Color.Transparent,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
                         .clip(CircleShape)
                         .background(AppColors.accent)
                 )
@@ -67,27 +78,61 @@ fun PlaylistItem(filePath: String,
 
 
         Text(
-            file.name,
+            title,
             color = AppColors.white,
             maxLines = 1,
-            style = TextStyle(fontSize = 14.sp),
+            style = TextStyle(fontSize = 12.sp),
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .wrapContentHeight()
-                .padding(8.dp)
                 .weight(1f)
         )
 
-//        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            album,
+            color = AppColors.white,
+            maxLines = 1,
+            style = TextStyle(fontSize = 12.sp),
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .wrapContentHeight()
+                .weight(1f)
+        )
 
-        Row(modifier = Modifier.wrapContentWidth()) {
+        Text(
+            artist,
+            color = AppColors.white,
+            maxLines = 1,
+            style = TextStyle(fontSize = 12.sp),
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .wrapContentHeight()
+                .weight(1f)
+        )
+
+        Text(
+            PlayerUtils.getTimeString(duration),
+            color = AppColors.white,
+            maxLines = 1,
+            style = TextStyle(fontSize = 12.sp),
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .wrapContentHeight()
+                .weight(0.5f)
+        )
+
+
+        Row(
+            modifier = Modifier.width(48.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = "Play",
-                tint = if (file.isDirectory) AppColors.accent else  AppColors.white,
+                tint = AppColors.white,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(20.dp)
+                    .size(16.dp)
+//                    .padding(8.dp)
                     .clickable {
                         onPlayPressed()
                     }
@@ -96,10 +141,10 @@ fun PlaylistItem(filePath: String,
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Remove",
-                tint = if (file.isDirectory) AppColors.accent else  AppColors.white,
+                tint = AppColors.white,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(20.dp)
+                    .size(16.dp)
+//                    .padding(4.dp)
                     .clickable {
                         onRemovePressed()
                     }

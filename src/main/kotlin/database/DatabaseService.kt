@@ -1,6 +1,7 @@
 package database
 
 import kotlinx.coroutines.Dispatchers
+import models.FileRecord
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -105,7 +106,6 @@ object DatabaseService {
     }
 }
 
-data class FileRecord(var id: Int? = null, var name: String, var path: String, val hash: String, var sync: Boolean)
 
 fun FileRecord.getFullPath(): String{
     return "${this.path}${this.name}"

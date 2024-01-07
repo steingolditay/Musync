@@ -2,6 +2,8 @@ package utils
 
 import Constants
 import com.mpatric.mp3agic.Mp3File
+import enums.LibraryTitle
+import models.LibraryItemModel
 
 import java.io.File
 import java.math.BigInteger
@@ -63,6 +65,29 @@ object FileUtils {
 
     fun File.getLengthInMilliseconds(): Long {
         return Mp3File(this.getFullPath()).lengthInMilliseconds
+    }
+
+    fun File.getLibraryItemsForDirectory(): List<LibraryItemModel> {
+        var itemModels = mutableListOf<LibraryItemModel>()
+        this.listFiles()
+            ?.filter { it.isDirectory || it.isAudioFile() }
+            ?.sortedByDescending { it.isDirectory }
+            ?.let { fileList ->
+                itemModels = fileList.map { LibraryItemModel(it, null) }.toMutableList()
+                if (itemModels.isEmpty()) {
+                    return@let
+                }
+                if (!itemModels.first().file.isAudioFile()) {
+                    itemModels.add(0, LibraryItemModel(this, LibraryTitle.Folders))
+                }
+                (itemModels.indexOfFirst { it.file.isAudioFile() }).let {
+                    if (it != -1) {
+                        itemModels.add(it, LibraryItemModel(this, LibraryTitle.Tracks))
+                    }
+                }
+            }
+
+        return itemModels
     }
 
 

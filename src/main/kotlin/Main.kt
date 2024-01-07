@@ -67,7 +67,7 @@ fun main() = application {
         icon = painterResource(Constants.ImageResources.logo),
         state = windowState,
         ) {
-    window.minimumSize = Dimension(800, 600)
+    window.minimumSize = Dimension(1280, 768)
         MaterialTheme(darkColors(surface = Constants.AppColors.surfaceColor)) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

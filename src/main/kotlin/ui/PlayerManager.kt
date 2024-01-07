@@ -14,6 +14,7 @@ import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToLong
 
 
 object PlayerManager: StreamPlayer(), StreamPlayerListener {
@@ -74,20 +75,17 @@ object PlayerManager: StreamPlayer(), StreamPlayerListener {
 
     override fun progress(encodedBytes: Int, microsecondPosition: Long, pcmData: ByteArray?, properties: MutableMap<String, Any>?) {
         val progress = if (encodedBytes > 0 && totalBytes > 0) encodedBytes.toFloat() / totalBytes else -1f
-        val seconds = TimeUnit.MICROSECONDS.toSeconds(microsecondPosition)
+        val seconds = (durationInSeconds * progress).roundToLong()
         _currentPlayingTime.value = seconds
         _currentPlayingProgress.value = progress
-
-        (properties?.get("mp3.frame") as? Long)?.let {
-            if (it == totalFrames){
-                handleNext()
-            }
-        }
     }
 
     override fun statusUpdated(event: StreamPlayerEvent?) {
         event?.let {
             _playerState.value = it.playerStatus
+            if (it.playerStatus == Status.EOM){
+                handleNext()
+            }
         }
     }
 
@@ -146,8 +144,8 @@ object PlayerManager: StreamPlayer(), StreamPlayerListener {
 
     private fun handleNext(){
         scope?.launch(Dispatchers.IO) {
-            delay(1000)
             stop()
+            delay(1000)
             _currentPlayingIndex.value?.let { currentPlayingIndex ->
                 if (_playlist.value.size > currentPlayingIndex.plus(1)) {
                     val nextIndex = currentPlayingIndex + 1

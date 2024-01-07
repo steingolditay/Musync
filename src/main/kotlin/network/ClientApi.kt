@@ -1,6 +1,5 @@
 package network
 
-import database.FileRecord
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -13,9 +12,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 
 import io.ktor.serialization.jackson.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import models.FileRecord
 import utils.FileUtils.getContentType
 import java.io.File
 

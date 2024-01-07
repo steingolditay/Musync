@@ -11,12 +11,14 @@ object Constants {
         val dialogBackground = Color(0xFF1C1C1C)
         val accent = Color(0xFF7EA3CC)
         val accentDark = Color(0xFF383D44)
+        val accentDarker = Color(0xFF181A1D)
+
         val green = Color(0xFF41D6A2)
-        val red = Color(0xFFD64040)
+        val red = Color(0xFF2B2E33)
 
         val disabled = Color.DarkGray
         val black = Color.Black
-        val white = Color.White
+        val white = Color(0xFFECECEC)
 
     }
 

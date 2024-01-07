@@ -1,9 +1,9 @@
 package ui
 
-import database.FileRecord
 import enums.SyncProgress
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import models.FileRecord
 import network.ClientApi
 
 object SyncManager {

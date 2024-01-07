@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import enums.LibraryTitle
+import models.LibraryItemModel
 import ui.PlayerManager
 import utils.FileUtils.getFullPath
 import utils.FileUtils.isAudioFile
@@ -68,9 +69,9 @@ fun LibraryItem(model: LibraryItemModel,
             modifier = Modifier
                 .wrapContentHeight()
                 .padding(8.dp)
+                .weight(1f)
         )
 
-        Spacer(modifier = Modifier.weight(1f))
 
         if ((title == LibraryTitle.Tracks ) ||
             file.isAudioFile() ||

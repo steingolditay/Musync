@@ -3,6 +3,7 @@ package database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import models.FileRecord
 import utils.FileUtils.calculateMD5
 import utils.FileUtils.getPathOnly
 import utils.FileUtils.isAudioFile

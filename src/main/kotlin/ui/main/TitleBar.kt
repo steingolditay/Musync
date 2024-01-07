@@ -48,8 +48,6 @@ fun TitleBar(onApplicationExit: () -> Unit,
 
     }
 
-
-
     Surface {
         Row(
             verticalAlignment = Alignment.CenterVertically,
