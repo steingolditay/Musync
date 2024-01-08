@@ -35,7 +35,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 @Composable
 @Preview
 fun NavigationPanel(onTabSelected: (tab: NavigationTab) -> Unit) {
-    var selectedTab by remember { mutableStateOf(NavigationTab.Library) }
+    var selectedTab by remember { mutableStateOf(NavigationTab.Play) }
     val navigationTabs by remember { mutableStateOf(NavigationTab.values()) }
     var panelVisible by remember { mutableStateOf(true) }
 

@@ -34,7 +34,7 @@ import kotlin.io.path.Path
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LibraryTab() {
+fun PlayTab() {
     val scope = rememberCoroutineScope()
     var currentDirectory by remember { mutableStateOf("") }
     var playlist by remember { mutableStateOf(listOf<String>()) }

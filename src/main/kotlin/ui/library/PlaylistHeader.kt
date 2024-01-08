@@ -43,7 +43,7 @@ fun PlaylistHeader() {
     ) {
 
         Text(
-            "Name",
+            "Title",
             color = AppColors.white,
             maxLines = 1,
             style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold),
